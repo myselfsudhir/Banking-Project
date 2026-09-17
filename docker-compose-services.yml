@@ -1,8 +1,7 @@
 services:
 
   authentication-service:
-    build:
-      context: ./authentication-service
+    image: ghcr.io/myselfsudhir/banking-project/authentication-service:latest
     container_name: authentication-service
     ports:
       - "8086:8086"
@@ -12,8 +11,7 @@ services:
       SPRING_PROFILES_ACTIVE: docker
 
   account-service:
-    build:
-      context: ./account-service
+    image: ghcr.io/myselfsudhir/banking-project/account-service:latest
     container_name: account-service
     ports:
       - "8081:8081"
@@ -23,8 +21,7 @@ services:
       SPRING_PROFILES_ACTIVE: docker
 
   payment-service:
-    build:
-      context: ./payment-service
+    image: ghcr.io/myselfsudhir/banking-project/payment-service:latest
     container_name: payment-service
     ports:
       - "8083:8083"
@@ -34,8 +31,7 @@ services:
       SPRING_PROFILES_ACTIVE: docker
 
   transaction-service:
-    build:
-      context: ./transaction-service
+    image: ghcr.io/myselfsudhir/banking-project/transaction-service:latest
     container_name: transaction-service
     ports:
       - "8082:8082"
@@ -45,8 +41,7 @@ services:
       SPRING_PROFILES_ACTIVE: docker
 
   fraud-detection-service:
-    build:
-      context: ./fraud-detection-service
+    image: ghcr.io/myselfsudhir/banking-project/fraud-detection-service:latest
     container_name: fraud-detection-service
     ports:
       - "8084:8084"
@@ -56,8 +51,7 @@ services:
       SPRING_PROFILES_ACTIVE: docker
 
   notification-service:
-    build:
-      context: ./notification-service
+    image: ghcr.io/myselfsudhir/banking-project/notification-service:latest
     container_name: notification-service
     ports:
       - "8085:8085"
@@ -67,8 +61,7 @@ services:
       SPRING_PROFILES_ACTIVE: docker
 
   api-gateway:
-    build:
-      context: ./api-gateway
+    image: ghcr.io/myselfsudhir/banking-project/api-gateway:latest
     container_name: api-gateway
     ports:
       - "8080:8080"
@@ -76,4 +69,3 @@ services:
       - banking-network
     environment:
       SPRING_PROFILES_ACTIVE: docker
-
