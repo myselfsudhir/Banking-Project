@@ -1,0 +1,79 @@
+services:
+
+  authentication-service:
+    build:
+      context: ./authentication-service
+    container_name: authentication-service
+    ports:
+      - "8086:8086"
+    networks:
+      - banking-network
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+  account-service:
+    build:
+      context: ./account-service
+    container_name: account-service
+    ports:
+      - "8081:8081"
+    networks:
+      - banking-network
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+  payment-service:
+    build:
+      context: ./payment-service
+    container_name: payment-service
+    ports:
+      - "8083:8083"
+    networks:
+      - banking-network
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+  transaction-service:
+    build:
+      context: ./transaction-service
+    container_name: transaction-service
+    ports:
+      - "8082:8082"
+    networks:
+      - banking-network
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+  fraud-detection-service:
+    build:
+      context: ./fraud-detection-service
+    container_name: fraud-detection-service
+    ports:
+      - "8084:8084"
+    networks:
+      - banking-network
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+  notification-service:
+    build:
+      context: ./notification-service
+    container_name: notification-service
+    ports:
+      - "8085:8085"
+    networks:
+      - banking-network
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    networks:
+      - banking-network
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
