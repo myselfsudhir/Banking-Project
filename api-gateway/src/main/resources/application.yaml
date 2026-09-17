@@ -42,13 +42,33 @@ spring:
                   args:
                     redis-rate-limiter.replenishRate: 5
                     redis-rate-limiter.burstCapacity: 10
+
+            #Authentication-service
+            - id: authentication-service
+              uri: http://authentication-service:8086
+              predicates:
+                - Path=/api/v1/auth/**
+              filters:
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 10
+                    redis-rate-limiter.burstCapacity: 20
 server:
   port: 8080
 
 jwt:
   secret: my-super-secret-key-for-banking-application-123456
 
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.cloud.gateway.handler.RoutePredicateHandlerMapping: TRACE
+
 management:
+  endpoint:
+    gateway:
+      access: read_only
+
   endpoints:
     web:
       exposure:

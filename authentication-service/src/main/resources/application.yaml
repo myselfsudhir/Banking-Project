@@ -3,7 +3,7 @@ spring:
     name: authentication-service
 
   datasource:
-    url: jdbc:mysql://localhost:3306/bank_user_db?createDatabaseIfNotExist=true
+    url: jdbc:mysql://mysql:3306/bank_user_db?createDatabaseIfNotExist=true
     username: root
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
