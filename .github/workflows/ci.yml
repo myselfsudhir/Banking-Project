@@ -1,4 +1,4 @@
-name: Banking Project CI
+name: Banking Project CI/CD
 
 on:
   push:
@@ -9,10 +9,14 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
 
-  build-and-docker:
-    name: Build & Docker ${{ matrix.service }}
+  build-and-push:
+    name: Build & Push ${{ matrix.service }}
     runs-on: ubuntu-latest
 
     strategy:
@@ -42,10 +46,22 @@ jobs:
         working-directory: ./${{ matrix.service }}
         run: mvn clean package -DskipTests
 
-      - name: Build Docker image
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
         working-directory: ./${{ matrix.service }}
         run: |
+          IMAGE_NAME=ghcr.io/${GITHUB_REPOSITORY,,}/${{ matrix.service }}
+
           docker build \
-            -t banking/${{ matrix.service }}:${{ github.sha }} \
-            -t banking/${{ matrix.service }}:latest \
+            -t $IMAGE_NAME:${{ github.sha }} \
+            -t $IMAGE_NAME:latest \
             .
+
+          docker push $IMAGE_NAME:${{ github.sha }}
+          docker push $IMAGE_NAME:latest
