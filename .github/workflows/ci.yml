@@ -41,3 +41,35 @@ jobs:
       - name: Build ${{ matrix.service }}
         working-directory: ./${{ matrix.service }}
         run: mvn clean package -DskipTests
+
+
+  test:
+    name: Test ${{ matrix.service }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        service:
+          - account-service
+          - api-gateway
+          - authentication-service
+          - fraud-detection-service
+          - notification-service
+          - payment-service
+          - transaction-service
+
+    steps:
+
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Run tests
+        working-directory: ./${{ matrix.service }}
+        run: mvn test
