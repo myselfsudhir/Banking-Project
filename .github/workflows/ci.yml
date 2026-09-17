@@ -11,8 +11,8 @@ on:
 
 jobs:
 
-  build:
-    name: Build ${{ matrix.service }}
+  build-and-docker:
+    name: Build & Docker ${{ matrix.service }}
     runs-on: ubuntu-latest
 
     strategy:
@@ -41,3 +41,11 @@ jobs:
       - name: Build ${{ matrix.service }}
         working-directory: ./${{ matrix.service }}
         run: mvn clean package -DskipTests
+
+      - name: Build Docker image
+        working-directory: ./${{ matrix.service }}
+        run: |
+          docker build \
+            -t banking/${{ matrix.service }}:${{ github.sha }} \
+            -t banking/${{ matrix.service }}:latest \
+            .
