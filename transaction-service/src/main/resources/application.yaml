@@ -45,7 +45,7 @@ server:
 
 account:
   service:
-    url: http://acoount-service:8081
+    url: http://account-service:8081
 management:
   endpoints:
     web:

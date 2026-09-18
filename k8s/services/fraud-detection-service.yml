@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fraud-detection-service
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: fraud-detection-service
+
+  template:
+    metadata:
+      labels:
+        app: fraud-detection-service
+
+    spec:
+      containers:
+        - name: fraud-detection-service
+          image: ghcr.io/myselfsudhir/banking-project/fraud-detection-service:latest
+
+          ports:
+            - containerPort: 8084
+
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: docker
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fraud-detection-service
+
+spec:
+  selector:
+    app: fraud-detection-service
+
+  ports:
+    - port: 8084
+      targetPort: 8084
+
+  type: ClusterIP
