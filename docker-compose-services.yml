@@ -69,3 +69,8 @@ services:
       - banking-network
     environment:
       SPRING_PROFILES_ACTIVE: docker
+
+networks:
+  banking-network:
+    external: true
+    name: bankingproject_banking-network
