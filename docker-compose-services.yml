@@ -1,4 +1,13 @@
 services:
+  banking-frontend:
+    image: ghcr.io/myselfsudhir/banking-frontend/banking-frontend:latest
+    container_name: banking-frontend
+    ports:
+      - "3000:80"
+    networks:
+      - banking-network
+    depends_on:
+      - api-gateway
 
   authentication-service:
     image: ghcr.io/myselfsudhir/banking-project/authentication-service:latest
@@ -70,7 +79,7 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: docker
 
-networks:
-  banking-network:
-    external: true
-    name: bankingproject_banking-network
+# networks:
+#   banking-network:
+#     external: true
+#     name: bankingproject_banking-network
