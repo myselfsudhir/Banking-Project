@@ -1,0 +1,100 @@
+services:
+  splunk:
+    image: splunk/splunk:9.2
+    container_name: banking-splunk
+    hostname: splunk
+    environment:
+      SPLUNK_START_ARGS: --accept-license
+      SPLUNK_PASSWORD: ${SPLUNK_PASSWORD:-ChangeMeToA_Strong_Local_Password}
+      SPLUNK_HEC_TOKEN: ${SPLUNK_HEC_TOKEN:-local-hec-token-change-me}
+      SPLUNK_HEC_ENABLE: "true"
+      SPLUNK_ENABLE_LISTEN: "9997"
+    ports:
+      - "8000:8000"
+      - "8088:8088"
+      - "9997:9997"
+    volumes:
+      - splunk-data:/opt/splunk/var
+    networks:
+      - banking-network
+
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    container_name: banking-prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=3d
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    networks:
+      - banking-network
+    depends_on:
+      - otel-collector
+
+  grafana:
+    image: grafana/grafana:11.1.0
+    container_name: banking-grafana
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin-change-me}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+    networks:
+      - banking-network
+    depends_on:
+      - prometheus
+      - tempo
+
+  tempo:
+    image: grafana/tempo:2.5.0
+    container_name: banking-tempo
+    command: -config.file=/etc/tempo/tempo.yml
+    ports:
+      - "3200:3200"
+      - "4317:4317"
+    volumes:
+      - ./observability/tempo.yml:/etc/tempo/tempo.yml:ro
+      - tempo-data:/var/tempo
+    networks:
+      - banking-network
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.105.0
+    container_name: banking-otel-collector
+    command: --config=/etc/otelcol-contrib/config.yml
+    environment:
+      SPLUNK_HEC_TOKEN: ${SPLUNK_HEC_TOKEN:-local-hec-token-change-me}
+    ports:
+      - "4318:4318"
+      - "8889:8889"
+      - "13133:13133"
+    volumes:
+      - ./observability/otel-collector.yml:/etc/otelcol-contrib/config.yml:ro
+    networks:
+      - banking-network
+    depends_on:
+      - splunk
+      - tempo
+
+# Merge this file with docker-compose.yml and docker-compose-services.yml.
+# The shared network name is resolved by Compose for the combined project.
+networks:
+  banking-network:
+    driver: bridge
+
+volumes:
+  splunk-data:
+  prometheus-data:
+  grafana-data:
+  tempo-data:
+
+# Docker's Splunk logging driver forwards container stdout/stderr to the local HEC.
+# Docker host must have the Splunk logging driver available.
