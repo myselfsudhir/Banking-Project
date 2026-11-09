@@ -18,6 +18,12 @@ services:
       - banking-network
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      DEPLOYMENT_ENVIRONMENT: local
+      MYSQL_USERNAME: ${MYSQL_USERNAME:-root}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in .env}
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env}
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://otel-collector:4318/v1/traces
+      OTEL_TRACES_SAMPLING_PROBABILITY: ${OTEL_TRACES_SAMPLING_PROBABILITY:-1.0}
 
   account-service:
     image: ghcr.io/myselfsudhir/banking-project/account-service:latest
@@ -28,6 +34,11 @@ services:
       - banking-network
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      DEPLOYMENT_ENVIRONMENT: local
+      MYSQL_USERNAME: ${MYSQL_USERNAME:-root}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in .env}
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://otel-collector:4318/v1/traces
+      OTEL_TRACES_SAMPLING_PROBABILITY: ${OTEL_TRACES_SAMPLING_PROBABILITY:-1.0}
 
   payment-service:
     image: ghcr.io/myselfsudhir/banking-project/payment-service:latest
@@ -38,6 +49,14 @@ services:
       - banking-network
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      DEPLOYMENT_ENVIRONMENT: local
+      MYSQL_USERNAME: ${MYSQL_USERNAME:-root}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in .env}
+      RAZORPAY_KEY_ID: ${RAZORPAY_KEY_ID:?Set RAZORPAY_KEY_ID in .env}
+      RAZORPAY_KEY_SECRET: ${RAZORPAY_KEY_SECRET:?Set RAZORPAY_KEY_SECRET in .env}
+      RAZORPAY_WEBHOOK_SECRET: ${RAZORPAY_WEBHOOK_SECRET:?Set RAZORPAY_WEBHOOK_SECRET in .env}
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://otel-collector:4318/v1/traces
+      OTEL_TRACES_SAMPLING_PROBABILITY: ${OTEL_TRACES_SAMPLING_PROBABILITY:-1.0}
 
   transaction-service:
     image: ghcr.io/myselfsudhir/banking-project/transaction-service:latest
@@ -48,6 +67,11 @@ services:
       - banking-network
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      DEPLOYMENT_ENVIRONMENT: local
+      MYSQL_USERNAME: ${MYSQL_USERNAME:-root}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in .env}
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://otel-collector:4318/v1/traces
+      OTEL_TRACES_SAMPLING_PROBABILITY: ${OTEL_TRACES_SAMPLING_PROBABILITY:-1.0}
 
   fraud-detection-service:
     image: ghcr.io/myselfsudhir/banking-project/fraud-detection-service:latest
@@ -58,6 +82,9 @@ services:
       - banking-network
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      DEPLOYMENT_ENVIRONMENT: local
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://otel-collector:4318/v1/traces
+      OTEL_TRACES_SAMPLING_PROBABILITY: ${OTEL_TRACES_SAMPLING_PROBABILITY:-1.0}
 
   notification-service:
     image: ghcr.io/myselfsudhir/banking-project/notification-service:latest
@@ -68,6 +95,9 @@ services:
       - banking-network
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      DEPLOYMENT_ENVIRONMENT: local
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://otel-collector:4318/v1/traces
+      OTEL_TRACES_SAMPLING_PROBABILITY: ${OTEL_TRACES_SAMPLING_PROBABILITY:-1.0}
 
   api-gateway:
     image: ghcr.io/myselfsudhir/banking-project/api-gateway:latest
@@ -78,6 +108,10 @@ services:
       - banking-network
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      DEPLOYMENT_ENVIRONMENT: local
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env}
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://otel-collector:4318/v1/traces
+      OTEL_TRACES_SAMPLING_PROBABILITY: ${OTEL_TRACES_SAMPLING_PROBABILITY:-1.0}
 
 # networks:
 #   banking-network:

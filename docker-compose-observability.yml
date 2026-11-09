@@ -1,0 +1,147 @@
+services:
+  splunk:
+    image: splunk/splunk:latest
+    hostname: splunk
+    environment:
+      SPLUNK_START_ARGS: --accept-license
+      SPLUNK_GENERAL_TERMS: --accept-sgt-current-at-splunk-com
+      SPLUNK_PASSWORD: ${SPLUNK_PASSWORD:?Set SPLUNK_PASSWORD in .env}
+      SPLUNK_HEC_TOKEN: ${SPLUNK_HEC_TOKEN:?Set SPLUNK_HEC_TOKEN in .env}
+      SPLUNK_HEC_ENABLE: true
+    ports:
+      - 127.0.0.1:8000:8000
+      - 127.0.0.1:8088:8088
+    volumes:
+      - splunk-data:/opt/splunk/var
+    networks:
+      - banking-network
+    logging:
+      driver: json-file
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.62.0
+    environment:
+      COLLECTOR_OTLP_ENABLED: true
+    ports:
+      - 127.0.0.1:16686:16686
+    networks:
+      - banking-network
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    command: [--config=/etc/otelcol-contrib/config.yaml]
+    environment:
+      SPLUNK_HEC_TOKEN: ${SPLUNK_HEC_TOKEN:?Set SPLUNK_HEC_TOKEN in .env}
+    volumes:
+      - ./observability/otel-collector-config.yaml:/etc/otelcol-contrib/config.yaml:ro
+    depends_on:
+      - jaeger
+      - splunk
+    networks:
+      - banking-network
+
+  prometheus:
+    image: prom/prometheus:latest
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=3d
+      - --web.enable-lifecycle
+    ports:
+      - 127.0.0.1:9090:9090
+    volumes:
+      - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    depends_on:
+      - otel-collector
+    networks:
+      - banking-network
+
+  grafana:
+    image: grafana/grafana:latest
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?Set GRAFANA_ADMIN_PASSWORD in .env}
+      GF_USERS_ALLOW_SIGN_UP: false
+    ports:
+      - 127.0.0.1:3001:3000
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+    networks:
+      - banking-network
+
+  api-gateway:
+    logging:
+      driver: splunk
+      options:
+        splunk-token: ${SPLUNK_HEC_TOKEN:?Set SPLUNK_HEC_TOKEN in .env}
+        splunk-url: https://host.docker.internal:8088
+        splunk-insecureskipverify: "true"
+        tag: api-gateway
+
+  authentication-service:
+    logging:
+      driver: splunk
+      options:
+        splunk-token: ${SPLUNK_HEC_TOKEN:?Set SPLUNK_HEC_TOKEN in .env}
+        splunk-url: https://host.docker.internal:8088
+        splunk-insecureskipverify: true
+        tag: authentication-service
+
+  account-service:
+    logging:
+      driver: splunk
+      options:
+        splunk-token: ${SPLUNK_HEC_TOKEN:?Set SPLUNK_HEC_TOKEN in .env}
+        splunk-url: https://host.docker.internal:8088
+        splunk-insecureskipverify: true
+        tag: account-service
+
+  transaction-service:
+    logging:
+      driver: splunk
+      options:
+        splunk-token: ${SPLUNK_HEC_TOKEN:?Set SPLUNK_HEC_TOKEN in .env}
+        splunk-url: https://host.docker.internal:8088
+        splunk-insecureskipverify: true
+        tag: transaction-service
+
+  payment-service:
+    logging:
+      driver: splunk
+      options:
+        splunk-token: ${SPLUNK_HEC_TOKEN:?Set SPLUNK_HEC_TOKEN in .env}
+        splunk-url: https://host.docker.internal:8088
+        splunk-insecureskipverify: true
+        tag: payment-service
+
+  fraud-detection-service:
+    logging:
+      driver: splunk
+      options:
+        splunk-token: ${SPLUNK_HEC_TOKEN:?Set SPLUNK_HEC_TOKEN in .env}
+        splunk-url: https://host.docker.internal:8088
+        splunk-insecureskipverify: true
+        tag: fraud-detection-service
+
+  notification-service:
+    logging:
+      driver: splunk
+      options:
+        splunk-token: ${SPLUNK_HEC_TOKEN:?Set SPLUNK_HEC_TOKEN in .env}
+        splunk-url: https://host.docker.internal:8088
+        splunk-insecureskipverify: true
+        tag: notification-service
+
+volumes:
+  splunk-data:
+  prometheus-data:
+  grafana-data:
+
+networks:
+  banking-network:
+    driver: bridge

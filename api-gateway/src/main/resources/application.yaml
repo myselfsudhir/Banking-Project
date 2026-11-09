@@ -77,7 +77,7 @@ server:
   port: 8080
 
 jwt:
-  secret: my-super-secret-key-for-banking-application-123456
+  secret: ${JWT_SECRET}
 
 logging:
   level:
@@ -85,11 +85,33 @@ logging:
     org.springframework.cloud.gateway.handler.RoutePredicateHandlerMapping: TRACE
 
 management:
-  endpoint:
-    gateway:
-      access: read_only
-
+  server:
+    port: 9090
+  otlp:
+    metrics:
+      export:
+        enabled: false
   endpoints:
     web:
       exposure:
-        include: health,info, gateway
+        include: health,info,prometheus,gateway
+  endpoint:
+    health:
+      probes:
+        enabled: true
+    gateway:
+      access: read_only
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  tracing:
+    sampling:
+      probability: ${OTEL_TRACES_SAMPLING_PROBABILITY:0.1}
+  opentelemetry:
+    resource-attributes:
+      service.name: ${spring.application.name}
+      deployment.environment: ${DEPLOYMENT_ENVIRONMENT:local}
+    tracing:
+      export:
+        otlp:
+          endpoint: ${OTEL_EXPORTER_OTLP_TRACES_ENDPOINT:http://otel-collector:4318/v1/traces}
