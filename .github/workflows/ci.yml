@@ -14,12 +14,11 @@ permissions:
   packages: write
 
 jobs:
-
-  build-and-push:
-    name: Build & Push ${{ matrix.service }}
+  build:
+    name: Validate ${{ matrix.service }}
     runs-on: ubuntu-latest
-
     strategy:
+      fail-fast: false
       matrix:
         service:
           - account-service
@@ -31,7 +30,6 @@ jobs:
           - transaction-service
 
     steps:
-
       - name: Checkout source code
         uses: actions/checkout@v4
 
@@ -39,7 +37,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           java-version: '17'
-          distribution: 'temurin'
+          distribution: temurin
           cache: maven
 
       - name: Build ${{ matrix.service }}
@@ -47,21 +45,25 @@ jobs:
         run: mvn clean package -DskipTests
 
       - name: Log in to GitHub Container Registry
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker image
+      - name: Build and push immutable Docker image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         working-directory: ./${{ matrix.service }}
         run: |
           IMAGE_NAME=ghcr.io/${GITHUB_REPOSITORY,,}/${{ matrix.service }}
-
-          docker build \
-            -t $IMAGE_NAME:${{ github.sha }} \
-            -t $IMAGE_NAME:latest \
-            .
-
+          docker build -t $IMAGE_NAME:${{ github.sha }} .
           docker push $IMAGE_NAME:${{ github.sha }}
+
+      - name: Update latest image tag
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        working-directory: ./${{ matrix.service }}
+        run: |
+          IMAGE_NAME=ghcr.io/${GITHUB_REPOSITORY,,}/${{ matrix.service }}
+          docker build -t $IMAGE_NAME:latest .
           docker push $IMAGE_NAME:latest
