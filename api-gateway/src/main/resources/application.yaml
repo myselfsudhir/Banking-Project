@@ -98,6 +98,9 @@ management:
   endpoint:
     gateway:
       access: read_only
+  metrics:
+    tags:
+      application: ${spring.application.name}
   tracing:
     sampling:
       probability: ${OTEL_TRACES_SAMPLING_PROBABILITY:0.1}
