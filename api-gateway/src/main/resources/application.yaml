@@ -77,7 +77,7 @@ server:
   port: 8080
 
 jwt:
-  secret: my-super-secret-key-for-banking-application-123456
+  secret: ${JWT_SECRET}
 
 logging:
   level:
@@ -95,7 +95,6 @@ management:
     health:
       probes:
         enabled: true
-  endpoint:
     gateway:
       access: read_only
   metrics:
@@ -105,6 +104,9 @@ management:
     sampling:
       probability: ${OTEL_TRACES_SAMPLING_PROBABILITY:0.1}
   opentelemetry:
+    resource-attributes:
+      service.name: ${spring.application.name}
+      deployment.environment: ${DEPLOYMENT_ENVIRONMENT:local}
     tracing:
       export:
         otlp:
