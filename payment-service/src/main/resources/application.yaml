@@ -33,6 +33,10 @@ razorpay:
 management:
   server:
     port: 9090
+  otlp:
+    metrics:
+      export:
+        enabled: false
   endpoints:
     web:
       exposure:

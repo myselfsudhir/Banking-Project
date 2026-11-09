@@ -30,7 +30,7 @@ docker compose -f docker-compose.yml -f docker-compose-services.yml -f docker-co
 - Jaeger: http://localhost:16686
 - Splunk: http://localhost:8000
 
-Splunk HEC is published on local port 8088. The compose overlay uses Docker's Splunk logging driver to forward service stdout/stderr to Splunk HEC. The OpenTelemetry Collector accepts OTLP traces and metrics; it exports traces to Jaeger and OTLP logs to Splunk HEC when an application emits OTLP log records.
+Splunk HEC is published on local port 8088. The compose overlay uses Docker's Splunk logging driver to forward service stdout/stderr to Splunk HEC. Prometheus scrapes each service's internal Actuator endpoint on port 9090. The OpenTelemetry Collector accepts OTLP traces and exports them to Jaeger. Application stdout/stderr is sent to Splunk HEC by the Docker logging driver.
 
 ## Test
 1. In Prometheus, open Status > Targets. Banking services should be UP once started.

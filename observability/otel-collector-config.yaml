@@ -30,11 +30,6 @@ exporters:
     tls:
       insecure_skip_verify: true
 
-  prometheus:
-    endpoint: 0.0.0.0:8889
-    namespace: otelcol
-    send_timestamps: true
-
   debug:
     verbosity: basic
 
@@ -44,10 +39,6 @@ service:
       receivers: [otlp]
       processors: [memory_limiter, batch]
       exporters: [otlp/jaeger, debug]
-    metrics:
-      receivers: [otlp]
-      processors: [memory_limiter, batch]
-      exporters: [prometheus, debug]
     logs:
       receivers: [otlp]
       processors: [memory_limiter, batch]
