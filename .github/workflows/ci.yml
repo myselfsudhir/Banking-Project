@@ -64,3 +64,14 @@ jobs:
           docker build -t $IMAGE_NAME:${{ github.sha }} -t $IMAGE_NAME:latest .
           docker push $IMAGE_NAME:${{ github.sha }}
           docker push $IMAGE_NAME:latest
+
+  validate-compose:
+    name: Validate Docker Compose configuration
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+      - name: Use sample local environment
+        run: cp .env.example .env
+      - name: Validate merged Compose configuration
+        run: docker compose -f docker-compose.yml -f docker-compose-services.yml -f docker-compose-local.yml -f docker-compose-observability.yml config --quiet
