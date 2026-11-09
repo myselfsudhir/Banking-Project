@@ -85,11 +85,24 @@ logging:
     org.springframework.cloud.gateway.handler.RoutePredicateHandlerMapping: TRACE
 
 management:
-  endpoint:
-    gateway:
-      access: read_only
-
+  server:
+    port: 9090
   endpoints:
     web:
       exposure:
-        include: health,info, gateway
+        include: health,info,prometheus,gateway
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  endpoint:
+    gateway:
+      access: read_only
+  tracing:
+    sampling:
+      probability: ${OTEL_TRACES_SAMPLING_PROBABILITY:0.1}
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: ${OTEL_EXPORTER_OTLP_TRACES_ENDPOINT:http://otel-collector:4318/v1/traces}
