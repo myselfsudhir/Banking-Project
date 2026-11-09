@@ -7,6 +7,7 @@ services:
       SPLUNK_GENERAL_TERMS: --accept-sgt-current-at-splunk-com
       SPLUNK_PASSWORD: ${SPLUNK_PASSWORD:?Set SPLUNK_PASSWORD in .env}
       SPLUNK_HEC_TOKEN: ${SPLUNK_HEC_TOKEN:?Set SPLUNK_HEC_TOKEN in .env}
+      SPLUNK_HEC_ENABLE: true
     ports:
       - 127.0.0.1:8000:8000
       - 127.0.0.1:8088:8088
@@ -79,7 +80,7 @@ services:
       options:
         splunk-token: ${SPLUNK_HEC_TOKEN:?Set SPLUNK_HEC_TOKEN in .env}
         splunk-url: https://host.docker.internal:8088
-        splunk-insecureskipverify: true
+        splunk-insecureskipverify: "true"
         tag: api-gateway
 
   authentication-service:
@@ -143,5 +144,4 @@ volumes:
 
 networks:
   banking-network:
-    name: banking-project_banking-network
-    external: true
+    driver: bridge
